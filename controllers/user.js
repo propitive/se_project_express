@@ -16,11 +16,10 @@ const getUsers = (req, res) => {
           message:
             "There is no user with the requested id, or the request was sent to a non-existent address",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 };
 
@@ -49,11 +48,10 @@ const getUser = (req, res) => {
           message:
             "Invalid data passed to the methods for creating an user or invalid ID passed to the params.",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 };
 
@@ -77,11 +75,10 @@ const createUser = (req, res) => {
           message:
             "There is no user with the requested id, or the request was sent to a non-existent address",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 };
 

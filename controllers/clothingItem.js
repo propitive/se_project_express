@@ -25,11 +25,10 @@ const createItem = (req, res) => {
           message:
             "There is no clothing item with the requested id, or the request was sent to a non-existent address",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 };
 
@@ -48,11 +47,10 @@ const getItems = (req, res) => {
           message:
             "There is no clothing item with the requested id, or the request was sent to a non-existent address",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 };
 
@@ -75,11 +73,10 @@ const updateItem = (req, res) => {
           message:
             "There is no clothing item with the requested id, or the request was sent to a non-existent address",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 };
 
@@ -108,11 +105,10 @@ const deleteItem = (req, res) => {
           message:
             "There is no clothing item with the requested id, or the request was sent to a non-existent address",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 };
 
@@ -146,11 +142,10 @@ const likeItem = (req, res) => {
           message:
             "There is no clothing item with the requested id, or the request was sent to a non-existent address",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 };
 
@@ -181,11 +176,10 @@ const dislikeItem = (req, res) =>
           message:
             "There is no clothing item with the requested id, or the request was sent to a non-existent address",
         });
-      } else {
-        res
-          .status(errorCode500)
-          .send({ message: "An error has occurred on the server", err });
       }
+      return res
+        .status(errorCode500)
+        .send({ message: "An error has occurred on the server", err });
     });
 
 module.exports = {
