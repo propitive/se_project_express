@@ -105,7 +105,7 @@ const deleteItem = (req, res) => {
 };
 
 const likeItem = (req, res) => {
-  return ClothingItem.findByIdAndUpdate(
+  ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
     { new: true }
