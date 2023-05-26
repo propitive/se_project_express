@@ -30,9 +30,6 @@ const getUser = (req, res) => {
     .orFail()
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      console.log(err);
-      console.log(err.name);
-
       if (err.name === "DocumentNotFoundError") {
         return res.status(errorCode404).send({
           message:
@@ -60,7 +57,6 @@ const createUser = (req, res) => {
 
   User.create({ name, avatar })
     .then((user) => {
-      console.log(user);
       res.send({ data: user });
     })
     .catch((err) => {
