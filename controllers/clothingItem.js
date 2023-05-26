@@ -86,7 +86,7 @@ const deleteItem = (req, res) => {
   console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then((item) => res.status(204).send({}))
+    .then(() => res.status(204).send({}))
     .catch((err) => {
       if (err.name === "ValidationError" || "AssertionError") {
         return res.status(errorCode400).send({
