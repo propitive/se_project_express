@@ -19,7 +19,7 @@ const handleError = (err, res) => {
     res
       .status(ERROR_CODES.BadRequest)
       .send({ message: "Bad Request, Invalid input" });
-  } else if (err.statusCode === 401) {
+  } else if (err.statusCode === 401 || err.name === "Error") {
     res
       .status(ERROR_CODES.Unauthorized)
       .send({ message: "You are not authorized to do this" });

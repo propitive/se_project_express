@@ -34,22 +34,29 @@ const createUser = (req, res) => {
             .catch((err) => handleError(err, res));
         });
       }
-
-      throw new Error(
-        "Email address is already being used, please try another email"
+      const ConflictError = new Error(
+        "Email address is already being used, please try another email."
       );
+      ConflictError.statusCode = 409;
+      throw ConflictError;
     })
     .catch((err) => {
+      console.error(err);
+      console.error(err.name);
+      console.error(err.statusCode);
       if (err.name === "MongoServerError") {
+        console.error(err);
         const error = new Error("User with this email already exists");
         error.statusCode = 11000;
         handleError(err, res);
       }
+      if (err.statusCode === 409) {
+        res.status(409).send({
+          message:
+            "Email address is already being used, please try another email 2.",
+        });
+      }
     });
-  // .then((user) => res.send(user))
-  // .catch((err) => {
-  //   handleError(err, res);
-  // });
 };
 
 const getCurrentUser = (req, res) => {
@@ -87,10 +94,11 @@ const login = (req, res) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       res.send({
-        token: jet.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
+        token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
       });
     })
     .catch((err) => {
+      console.log(err);
       handleError(err, res);
     });
 };
