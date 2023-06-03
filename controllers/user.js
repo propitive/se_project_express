@@ -4,26 +4,35 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 const { handleOnFailError, handleError } = require("../utils/errors");
 
+// const createUser = (req, res) => {
+//   const { name, avatar, email, password } = req.body;
+
+//   bcrypt.hash(password, 10).then((hash) => {
+//     User.create({ name, avatar, email, password: hash })
+//       .then((user) => {
+//         const userData = user.toObject();
+//         delete userData.password;
+//         return res.status(201).send({ data: userData });
+//       })
+//       .catch((err) => handleError(err, res));
+//   });
+// };
+
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   User.findOne({ email })
     .then((user) => {
       if (!user) {
-        bcrypt.hash(req.body.password, 10).then((hash) =>
-          User.create({
-            name,
-            avatar,
-            email,
-            password: hash,
-          })
+        bcrypt.hash(password, 10).then((hash) => {
+          User.create({ name, avatar, email, password: hash })
             .then((user) => {
-              res.send({ data: user });
+              const userData = user.toObject();
+              delete userData.password;
+              return res.status(201).send({ data: userData });
             })
-            .catch((err) => {
-              handleCatchMethod(req, res, err);
-            })
-        );
+            .catch((err) => handleError(err, res));
+        });
       }
 
       throw new Error(
@@ -36,17 +45,15 @@ const createUser = (req, res) => {
         error.statusCode = 11000;
         handleError(err, res);
       }
-    })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      handleError(err, res);
     });
+  // .then((user) => res.send(user))
+  // .catch((err) => {
+  //   handleError(err, res);
+  // });
 };
 
 const getCurrentUser = (req, res) => {
-  const { userId } = req.user._id;
-
-  User.findById(userId)
+  User.findById(req.user._id)
     .orFail(() => {
       handleOnFailError();
     })
@@ -97,6 +104,73 @@ module.exports = {
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// const createUser = (req, res) => {
+//   const { name, avatar, email, password } = req.body;
+
+//   bcrypt.hash(password, 10).then((hash) =>
+//     User.create({
+//       name,
+//       avatar,
+//       email,
+//       password: hash,
+//     })
+//       .then(console.log("createUser process is running"))
+//       .then((user) => {
+//         res.send({ data: user });
+//       })
+//       .catch((err) => {
+//         if (err.name === "MongoServerError") {
+//           const error = new Error("User with this email already exists");
+//           error.statusCode = 11000;
+//           handleError(err, res);
+//         }
+//       })
+//       .then((user) => res.send(user))
+//       .catch((err) => {
+//         handleError(err, res);
+//       })
+//   );
+// };
+
+// const createUser = (req, res) => {
+//   const { name, avatar, email, password } = req.body;
+
+//   User.findOne({ email })
+//     .then((user) => {
+//       if (!user) {
+//         bcrypt.hash(password, 10).then((hash) =>
+//           User.create({
+//             name,
+//             avatar,
+//             email,
+//             password: hash,
+//           })
+//             .then((user) => {
+//               res.send({ data: user });
+//             })
+//             .catch((err) => {
+//               handleError(err, res);
+//             })
+//         );
+//       }
+
+//       throw new Error(
+//         "Email address is already being used, please try another email"
+//       );
+//     })
+// .catch((err) => {
+//   if (err.name === "MongoServerError") {
+//     const error = new Error("User with this email already exists");
+//     error.statusCode = 11000;
+//     handleError(err, res);
+//   }
+// })
+// .then((user) => res.send(user))
+// .catch((err) => {
+//   handleError(err, res);
+// });
+// };
 
 // const getUsers = (req, res) => {
 //   User.find({})

@@ -5,14 +5,14 @@ const bcrypt = require("bcryptjs");
 const user = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    // required: true,
     minlength: 2,
     maxlength: 30,
     role: { type: String, default: "Elise Bouer" },
   },
   avatar: {
     type: String,
-    required: true,
+    // required: true,
     validate: {
       validator: (v) => validator.isURL(v),
       message: "You must enter a valid URL",
