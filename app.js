@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 
 const mongoose = require("mongoose");
 
@@ -8,17 +9,18 @@ mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db", (r) => {
   console.log("connected to DB", r);
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "646e602a9f0bb4cab715c871", // paste the _id of the test user created in the previous step
-  };
-  next();
-});
-
 const routes = require("./routes");
+const auth = require("./middlewares/auth");
+const { login, createUser } = require("./controllers/user");
 
 app.use(express.json());
+app.use(cors());
 app.use(routes);
+
+app.post("/signin", login);
+app.post("/signup", createUser);
+
+app.use(auth);
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
