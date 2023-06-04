@@ -64,6 +64,7 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => {
+      handleError(err, res);
       handleOnFailError();
     })
     .then(() =>
