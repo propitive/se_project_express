@@ -21,42 +21,49 @@ const { handleOnFailError, handleError } = require("../utils/errors");
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  User.findOne({ email })
-    .then((user) => {
-      if (!user) {
-        bcrypt.hash(password, 10).then((hash) => {
-          User.create({ name, avatar, email, password: hash })
-            .then((user) => {
-              const userData = user.toObject();
-              delete userData.password;
-              return res.status(201).send({ data: userData });
-            })
-            .catch((err) => handleError(err, res));
-        });
-      }
-      const ConflictError = new Error(
-        "Email address is already being used, please try another email."
-      );
-      ConflictError.statusCode = 409;
-      throw ConflictError;
-    })
-    .catch((err) => {
-      console.error(err);
-      console.error(err.name);
-      console.error(err.statusCode);
-      if (err.name === "MongoServerError") {
-        console.error(err);
-        const error = new Error("User with this email already exists");
-        error.statusCode = 11000;
-        handleError(err, res);
-      }
-      if (err.statusCode === 409) {
-        res.status(409).send({
-          message:
-            "Email address is already being used, please try another email 2.",
-        });
-      }
+  if (!email || !password) {
+    res.status(400).send({
+      message: "Please, provide both an email and a password.",
     });
+  } else {
+    User.findOne({ email })
+      .then((user) => {
+        if (!user) {
+          bcrypt.hash(password, 10).then((hash) => {
+            User.create({ name, avatar, email, password: hash })
+              .then((user) => {
+                const userData = user.toObject();
+                delete userData.password;
+                return res.status(201).send({ data: userData });
+              })
+              .catch((err) => handleError(err, res));
+          });
+        } else {
+          const ConflictError = new Error(
+            "Email address is already being used, please try another email."
+          );
+          ConflictError.statusCode = 409;
+          throw ConflictError;
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        console.error(err.name);
+        console.error(err.statusCode);
+        if (err.name === "MongoServerError") {
+          console.error(err);
+          const error = new Error("User with this email already exists");
+          error.statusCode = 11000;
+          handleError(err, res);
+        }
+        if (err.statusCode === 409) {
+          res.status(409).send({
+            message:
+              "Email address is already being used, please try another email 2.",
+          });
+        }
+      });
+  }
 };
 
 const getCurrentUser = (req, res) => {
