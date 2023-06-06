@@ -40,7 +40,7 @@ const updateItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  ClothingItem.findById(req.params._id)
+  ClothingItem.findById(req.params.itemId)
     .orFail(() => {
       const error = new Error("Item ID not found");
       error.statusCode = 404;
