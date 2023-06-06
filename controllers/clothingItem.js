@@ -1,5 +1,9 @@
 const ClothingItem = require("../models/clothingItem");
-const { handleOnFailError, handleError } = require("../utils/errors");
+const {
+  handleOnFailError,
+  handleError,
+  ERROR_CODES,
+} = require("../utils/errors");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
@@ -15,7 +19,7 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => res.send(items))
     .catch((err) => {
       handleError(err, res);
     });
@@ -36,26 +40,58 @@ const updateItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  const { itemId } = req.params;
-
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(req.params._id)
     .orFail(() => {
-      handleOnFailError();
+      const error = new Error("Item ID not found");
+      error.statusCode = 404;
+      throw error;
     })
     .then((item) => {
-      if (item.owner.equals(req.user._id)) {
+      if (String(item.owner) !== req.user._id) {
         return res
-          .status(200)
-          .send({ message: `The item has been successfully deleted.` });
+          .status(ERROR_CODES.Forbidden)
+          .send({ message: "You are not authorized to delete this item" });
       }
-      return res.status(403).send({
-        message: "You do not have permission to delete another users item",
+      return item.deleteOne().then(() => {
+        res.send({ message: "Item deleted" });
       });
     })
     .catch((err) => {
-      handleError(err, res);
+      if (err.statusCode === 404) {
+        res.status(ERROR_CODES.NotFound).send({ message: "Item not found" });
+      } else if (err.name === "CastError") {
+        res
+          .status(ERROR_CODES.BadRequest)
+          .send({ message: "Bad Request and/or invalid input" });
+      } else {
+        res
+          .status(ERROR_CODES.DefaultError)
+          .send({ message: "Something went wrong" });
+      }
     });
 };
+
+// const deleteItem = (req, res) => {
+//   const { itemId } = req.params;
+
+//   ClothingItem.findByIdAndDelete(itemId)
+//     .orFail(() => {
+//       handleOnFailError();
+//     })
+//     .then((item) => {
+//       if (item.owner.equals(req.user._id)) {
+//         return res
+//           .status(200)
+//           .send({ message: `The item has been successfully deleted.` });
+//       }
+//       return res.status(ERROR_CODES.Forbidden).send({
+//         message: "You do not have permission to delete another users item",
+//       });
+//     })
+//     .catch((err) => {
+//       handleError(err, res);
+//     });
+// };
 
 const likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
@@ -64,7 +100,6 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      handleError(err, res);
       handleOnFailError();
     })
     .then(() =>
@@ -97,8 +132,6 @@ module.exports = {
   likeItem,
   dislikeItem,
 };
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
 
 // function handleRegularItemMethod(req, res, err) {
 //   if (err.name === "ValidationError" || err.name === "AssertionError") {
