@@ -8,7 +8,13 @@ const {
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
+  ClothingItem.create({
+    name,
+    weather,
+    imageUrl,
+    owner: req.user._id,
+    isLiked: false,
+  })
     .then((item) => {
       res.send({ data: item });
     })
@@ -18,8 +24,8 @@ const createItem = (req, res) => {
 };
 
 const getItems = (req, res) => {
-  ClothingItem.find({})
-    .then((items) => res.send(items))
+  ClothingItem.find()
+    .then((items) => res.status(200).send({ data: items }))
     .catch((err) => {
       handleError(err, res);
     });
@@ -71,28 +77,6 @@ const deleteItem = (req, res) => {
     });
 };
 
-// const deleteItem = (req, res) => {
-//   const { itemId } = req.params;
-
-//   ClothingItem.findByIdAndDelete(itemId)
-//     .orFail(() => {
-//       handleOnFailError();
-//     })
-//     .then((item) => {
-//       if (item.owner.equals(req.user._id)) {
-//         return res
-//           .status(200)
-//           .send({ message: `The item has been successfully deleted.` });
-//       }
-//       return res.status(ERROR_CODES.Forbidden).send({
-//         message: "You do not have permission to delete another users item",
-//       });
-//     })
-//     .catch((err) => {
-//       handleError(err, res);
-//     });
-// };
-
 const likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
@@ -102,9 +86,11 @@ const likeItem = (req, res) => {
     .orFail(() => {
       handleOnFailError();
     })
-    .then(() =>
-      res.status(200).send({ message: "Item has successfully been liked" })
-    )
+    .then((item) => {
+      const isLiked = item.likes.includes(req.user._id);
+
+      res.status(200).send({ data: { ...item.toObject(), isLiked } });
+    })
     .catch((err) => {
       handleError(err, res);
     });
@@ -119,7 +105,11 @@ const dislikeItem = (req, res) =>
     .orFail(() => {
       handleOnFailError();
     })
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => {
+      const isLiked = item.likes.includes(req.user._id);
+
+      res.status(200).send({ data: { ...item.toObject(), isLiked } });
+    })
     .catch((err) => {
       handleError(err, res);
     });
@@ -132,43 +122,3 @@ module.exports = {
   likeItem,
   dislikeItem,
 };
-
-// function handleRegularItemMethod(req, res, err) {
-//   if (err.name === "ValidationError" || err.name === "AssertionError") {
-//     return res.status(errorCode400).send({
-//       message:
-//         "Invalid data passed to the methods for creating an item or updating an item, or invalid ID passed to the params.",
-//     });
-//   }
-//   if (err.name === "CastError") {
-//     return res.status(errorCode404).send({
-//       message:
-//         "There is no clothing item with the requested id, or the request was sent to a non-existent address.",
-//     });
-//   }
-//   return res
-//     .status(errorCode500)
-//     .send({ message: "An error has occurred on the server", err });
-// }
-
-// function handleFindByIdItemCatchMethod(req, res, err) {
-//   if (
-//     err.name === "CastError" ||
-//     err.name === "ValidationError" ||
-//     err.name === "AssertionError"
-//   ) {
-//     return res.status(errorCode400).send({
-//       message:
-//         "Invalid data passed to the methods for creating an item or updating an item, or invalid ID passed to the params.",
-//     });
-//   }
-//   if (err.name === "DocumentNotFoundError") {
-//     return res.status(errorCode404).send({
-//       message:
-//         "There is no clothing item with the requested id, or the request was sent to a non-existent address.",
-//     });
-//   }
-//   return res
-//     .status(errorCode500)
-//     .send({ message: "An error has occurred on the server", err });
-// }
