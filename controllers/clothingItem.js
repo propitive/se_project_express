@@ -13,7 +13,6 @@ const createItem = (req, res) => {
     weather,
     imageUrl,
     owner: req.user._id,
-    isLiked: false,
   })
     .then((item) => {
       res.send({ data: item });
@@ -25,6 +24,7 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find()
+    .sort({ createdAt: -1 })
     .then((items) => res.status(200).send({ data: items }))
     .catch((err) => {
       handleError(err, res);
@@ -87,9 +87,7 @@ const likeItem = (req, res) => {
       handleOnFailError();
     })
     .then((item) => {
-      const isLiked = item.likes.includes(req.user._id);
-
-      res.status(200).send({ data: { ...item.toObject(), isLiked } });
+      res.status(200).send({ data: { ...item.toObject() } });
     })
     .catch((err) => {
       handleError(err, res);
@@ -106,9 +104,7 @@ const dislikeItem = (req, res) =>
       handleOnFailError();
     })
     .then((item) => {
-      const isLiked = item.likes.includes(req.user._id);
-
-      res.status(200).send({ data: { ...item.toObject(), isLiked } });
+      res.status(200).send({ data: { ...item.toObject() } });
     })
     .catch((err) => {
       handleError(err, res);
