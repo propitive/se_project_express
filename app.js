@@ -1,7 +1,10 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const errorHandler = require("./middlewares/error-handler");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
+const { errors } = require("celebrate");
 
 // const { login, createUser } = require("./controllers/user");
 
@@ -15,7 +18,12 @@ const routes = require("./routes");
 
 app.use(express.json());
 app.use(cors());
+
+app.use(requestLogger);
+
 app.use(routes);
+app.use(errorLogger);
+app.use(errors());
 app.use(errorHandler);
 
 // app.post("/signup", createUser);
