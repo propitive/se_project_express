@@ -27,14 +27,14 @@ const createUser = (req, res, next) => {
         delete userData.password;
         return res.status(201).send({ data: userData });
       })
-      // .catch((err) => handleError(err, res));
-      .catch(() => {
-        next(
-          new BadRequestError(
-            "The request submitted in invalid. Please, try again."
-          )
-        );
-      });
+      .catch((err) => handleError(err, res));
+    // .catch(() => {
+    //   next(
+    //     new BadRequestError(
+    //       "The request submitted in invalid. Please, try again."
+    //     )
+    //   );
+    // });
   });
 };
 
@@ -44,16 +44,16 @@ const getCurrentUser = (req, res, next) => {
       handleOnFailError();
     })
     .then((user) => res.status(200).send({ data: user }))
-    // .catch((err) => {
-    //   handleError(err, res);
-    // });
-    .catch(() => {
-      next(
-        new NotFoundError(
-          "The requested user cannot be found. Please, try again."
-        )
-      );
+    .catch((err) => {
+      handleError(err, res);
     });
+  // .catch(() => {
+  //   next(
+  //     new NotFoundError(
+  //       "The requested user cannot be found. Please, try again."
+  //     )
+  //   );
+  // });
 };
 
 const updateCurrentUser = (req, res, next) => {
@@ -69,16 +69,16 @@ const updateCurrentUser = (req, res, next) => {
     .then((user) => {
       res.status(200).send(user);
     })
-    // .catch((err) => {
-    //   handleError(err, res);
-    // });
-    .catch(() => {
-      next(
-        new BadRequestError(
-          "The request submitted in invalid. Please, try again."
-        )
-      );
+    .catch((err) => {
+      handleError(err, res);
     });
+  // .catch(() => {
+  //   next(
+  //     new BadRequestError(
+  //       "The request submitted in invalid. Please, try again."
+  //     )
+  //   );
+  // });
 };
 
 const login = (req, res, next) => {
@@ -89,26 +89,24 @@ const login = (req, res, next) => {
       .status(ERROR_CODES.Unauthorized)
       .send({ message: "You are not authorized to do this" });
   }
-  return (
-    User.findUserByCredentials(email, password)
-      .then((user) => {
-        res.send({
-          token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
-        });
-      })
-      // .catch((err) => {
-      //   console.log(err);
-      //   console.log(err.name);
-      //   handleError(err, res);
-      // });
-      .catch(() => {
-        next(
-          new NotFoundError(
-            "The requested user cannot be found. Please, try again."
-          )
-        );
-      })
-  );
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.send({
+        token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      console.log(err.name);
+      handleError(err, res);
+    });
+  // .catch(() => {
+  //   next(
+  //     new NotFoundError(
+  //       "The requested user cannot be found. Please, try again."
+  //     )
+  //   );
+  // })
 };
 
 module.exports = {
