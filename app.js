@@ -6,8 +6,6 @@ const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const { errors } = require("celebrate");
 
-// const { login, createUser } = require("./controllers/user");
-
 const { PORT = 3001 } = process.env;
 const app = express();
 mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db", (r) => {
@@ -31,9 +29,6 @@ app.use(routes);
 app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
-
-// app.post("/signup", createUser);
-// app.post("/signin", login);
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
