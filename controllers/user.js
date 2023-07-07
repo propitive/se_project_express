@@ -2,19 +2,12 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-// const { JWT_SECRET } = require("../utils/config");
 const { JWT_SECRET } = process.env;
-const {
-  handleOnFailError,
-  handleError,
-  ERROR_CODES,
-} = require("../utils/errors");
+const { handleOnFailError, ERROR_CODES } = require("../utils/errors");
 const {
   BadRequestError,
   ConflictError,
-  ForbiddenError,
   UnauthorizedError,
-  NotFoundError,
 } = require("../utils/errors");
 
 const createUser = (req, res, next) => {
@@ -29,7 +22,6 @@ const createUser = (req, res, next) => {
           delete userData.password;
           return res.status(201).send({ data: userData });
         })
-        // .catch((err) => handleError(err, res));
         .catch((err) => {
           if (err.code === 11000) {
             next(
@@ -53,9 +45,6 @@ const getCurrentUser = (req, res, next) => {
       handleOnFailError();
     })
     .then((user) => res.status(200).send({ data: user }))
-    // .catch((err) => {
-    //   handleError(err, res);
-    // });
     .catch((err) => {
       if (err.name === "CastError") {
         next(new BadRequestError("Bad request, invalid ID"));
@@ -78,9 +67,6 @@ const updateCurrentUser = (req, res, next) => {
     .then((user) => {
       res.status(200).send(user);
     })
-    // .catch((err) => {
-    //   handleError(err, res);
-    // });
     .catch((err) => {
       if (err.name === "ValidationError") {
         next(new BadRequestError("Bad request, invalid data"));
@@ -98,22 +84,15 @@ const login = (req, res, next) => {
       .status(ERROR_CODES.Unauthorized)
       .send({ message: "You are not authorized to do this" });
   }
-  return (
-    User.findUserByCredentials(email, password)
-      .then((user) => {
-        res.send({
-          token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
-        });
-      })
-      // .catch((err) => {
-      //   console.log(err);
-      //   console.log(err.name);
-      //   handleError(err, res);
-      // });
-      .catch(() => {
-        next(new UnauthorizedError("Incorrect email or password"));
-      })
-  );
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.send({
+        token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
+      });
+    })
+    .catch(() => {
+      next(new UnauthorizedError("Incorrect email or password"));
+    });
 };
 
 module.exports = {
