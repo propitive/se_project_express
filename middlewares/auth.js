@@ -1,6 +1,7 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET = "SUPER_STRONG_KEY" } = process.env;
+// const { JWT_SECRET = "SUPER_STRONG_KEY" } = process.env;
+const { JWT_SECRET } = require("../utils/constants");
 const { handleError, ERROR_CODES } = require("../utils/errors");
 
 module.exports = (req, res, next) => {

@@ -2,7 +2,8 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { JWT_SECRET = "SUPER_STRONG_KEY" } = process.env;
+// const { JWT_SECRET = "SUPER_STRONG_KEY" } = process.env;
+const { JWT_SECRET } = require("../utils/constants");
 const { handleOnFailError, ERROR_CODES } = require("../utils/errors");
 const {
   BadRequestError,
