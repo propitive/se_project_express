@@ -20,22 +20,31 @@ const {
 const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
-  bcrypt.hash(password, 10).then((hash) => {
-    User.create({ name, avatar, email, password: hash })
-      .then((user) => {
-        const userData = user.toObject();
-        delete userData.password;
-        return res.status(201).send({ data: userData });
-      })
-      .catch((err) => handleError(err, res));
-    // .catch(() => {
-    //   next(
-    //     new BadRequestError(
-    //       "The request submitted in invalid. Please, try again."
-    //     )
-    //   );
-    // });
-  });
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => {
+      User.create({ name, avatar, email, password: hash })
+        .then((user) => {
+          const userData = user.toObject();
+          delete userData.password;
+          return res.status(201).send({ data: userData });
+        })
+        // .catch((err) => handleError(err, res));
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(
+              new ConflictError("A user with the current email already exists")
+            );
+          }
+          if (err.name === "ValidationError") {
+            next(new BadRequestError("Bad request, invalid data input"));
+          }
+          next(err);
+        });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 const getCurrentUser = (req, res, next) => {
@@ -44,16 +53,16 @@ const getCurrentUser = (req, res, next) => {
       handleOnFailError();
     })
     .then((user) => res.status(200).send({ data: user }))
+    // .catch((err) => {
+    //   handleError(err, res);
+    // });
     .catch((err) => {
-      handleError(err, res);
+      if (err.name === "CastError") {
+        next(new BadRequestError("Bad request, invalid ID"));
+      } else {
+        next(err);
+      }
     });
-  // .catch(() => {
-  //   next(
-  //     new NotFoundError(
-  //       "The requested user cannot be found. Please, try again."
-  //     )
-  //   );
-  // });
 };
 
 const updateCurrentUser = (req, res, next) => {
@@ -69,16 +78,16 @@ const updateCurrentUser = (req, res, next) => {
     .then((user) => {
       res.status(200).send(user);
     })
+    // .catch((err) => {
+    //   handleError(err, res);
+    // });
     .catch((err) => {
-      handleError(err, res);
+      if (err.name === "ValidationError") {
+        next(new BadRequestError("Bad request, invalid data"));
+      } else {
+        next(err);
+      }
     });
-  // .catch(() => {
-  //   next(
-  //     new BadRequestError(
-  //       "The request submitted in invalid. Please, try again."
-  //     )
-  //   );
-  // });
 };
 
 const login = (req, res, next) => {
@@ -89,24 +98,22 @@ const login = (req, res, next) => {
       .status(ERROR_CODES.Unauthorized)
       .send({ message: "You are not authorized to do this" });
   }
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      res.send({
-        token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      console.log(err.name);
-      handleError(err, res);
-    });
-  // .catch(() => {
-  //   next(
-  //     new NotFoundError(
-  //       "The requested user cannot be found. Please, try again."
-  //     )
-  //   );
-  // })
+  return (
+    User.findUserByCredentials(email, password)
+      .then((user) => {
+        res.send({
+          token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
+        });
+      })
+      // .catch((err) => {
+      //   console.log(err);
+      //   console.log(err.name);
+      //   handleError(err, res);
+      // });
+      .catch(() => {
+        next(new UnauthorizedError("Incorrect email or password"));
+      })
+  );
 };
 
 module.exports = {
