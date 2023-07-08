@@ -1,9 +1,7 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-} = require("../utils/errors");
+const BadRequestError = require("../errors/bad-request-error");
+const ForbiddenError = require("../errors/forbidden-error");
+const NotFoundError = require("../errors/not-found-error");
 
 const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
@@ -44,9 +42,8 @@ const updateItem = (req, res, next) => {
       if (!item) {
         next(new NotFoundError("Item not found"));
         return;
-      } else {
-        res.status(200).send({ data: item });
       }
+      res.status(200).send({ data: item });
     })
     .catch((err) => {
       next(err);
@@ -63,11 +60,10 @@ const deleteItem = (req, res, next) => {
       if (String(item.owner) !== req.user._id) {
         next(new ForbiddenError("You are not authorized to delete this item"));
         return;
-      } else {
-        return item.deleteOne().then(() => {
-          res.send({ message: "Item deleted" });
-        });
       }
+      return item.deleteOne().then(() => {
+        res.send({ message: "Item deleted" });
+      });
     })
     .catch((err) => {
       if (err.name === "CastError") {

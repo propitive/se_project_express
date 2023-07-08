@@ -4,11 +4,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/constants");
 const { handleOnFailError, ERROR_CODES } = require("../utils/errors");
-const {
-  BadRequestError,
-  ConflictError,
-  UnauthorizedError,
-} = require("../utils/errors");
+const BadRequestError = require("../errors/bad-request-error");
+const ConflictError = require("../errors/conflict-error");
+const UnauthorizedError = require("../errors/unauthorized-error");
 
 const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
@@ -80,9 +78,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(ERROR_CODES.Unauthorized)
-      .send({ message: "You are not authorized to do this" });
+    return next(new UnauthorizedError("You are not authorized to do this"));
   }
   return User.findUserByCredentials(email, password)
     .then((user) => {

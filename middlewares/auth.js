@@ -1,8 +1,9 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/constants");
-const { handleError, ERROR_CODES } = require("../utils/errors");
-const { UnauthorizedError } = require("../utils/errors");
+const { handleError } = require("../utils/errors");
+// const { UnauthorizedError } = require("../utils/errors");
+const UnauthorizedError = require("../errors/unauthorized-error");
 
 module.exports = (req, res, next) => {
   try {
