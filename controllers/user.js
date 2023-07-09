@@ -4,9 +4,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/constants");
 const { handleOnFailError } = require("../utils/errors");
-const BadRequestError = require("../errors/bad-request-error");
-const ConflictError = require("../errors/conflict-error");
-const UnauthorizedError = require("../errors/unauthorized-error");
+const { BadRequestError } = require("../errors/bad-request-error");
+const { ConflictError } = require("../errors/conflict-error");
+const { UnauthorizedError } = require("../errors/unauthorized-error");
 
 const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
