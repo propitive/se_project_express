@@ -1,7 +1,7 @@
 # What To Wear!
 
 This is a node.js clothes application powered by Express that suggests clothing items created by the user!
-![ScreenshotOfSignedInMainPage](/src/images/WTWR-signedInMainPage.png)
+![ScreenshotOfSignedInMainPage](/utils/images/WTWR-signedInMainPage.png) 
 
 ### Domain
 
