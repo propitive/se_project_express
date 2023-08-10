@@ -75,4 +75,4 @@ When the user clicks on any card, a modal will appear that will expand the cloth
 
 ### Frontend
 
-The GitHub repo for the backend is available [here](https://github.com/propitive/news-explorer-application).
+The GitHub repo for the backend is available [here](https://github.com/propitive/se_project_react).
